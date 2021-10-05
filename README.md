@@ -572,14 +572,14 @@ Through menu on pic-12 you can create your Apps Script project and create all fu
 
 For  UI implementation  custom meny added to the main manu in spreadsheet pic-13.
 
-    <kbd><img src="doc/pic-13.png " /></kbd>
-   <p style="text-align: center;">pic-13</p>
+  <kbd><img src="doc/pic-13.png" /></kbd>
+  <p style="text-align: center;">pic-13</p>
 
 
    Connection to spreadsheet implemented in this part of code pic-14
 
-     <kbd><img src="doc/pic-14.png " /></kbd>
-   <p style="text-align: center;">pic-14</p>
+  <kbd><img src="doc/pic-14.png"/></kbd>
+  <p style="text-align: center;">pic-14</p>
 
 
 ##  5. You should be able to add/update all data from table to DB
