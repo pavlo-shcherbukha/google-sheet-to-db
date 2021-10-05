@@ -1,0 +1,8 @@
+node_modules
+node_modules_linux
+localdev-config.json
+*.log
+# credentials.json
+# server/services/data.psh
+# server/services/Demchenko
+# server/services/data.dem
