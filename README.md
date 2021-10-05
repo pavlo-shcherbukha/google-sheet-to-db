@@ -3,20 +3,22 @@ How to save data from google sheet to  mysql database using google Apps script
 
 The task is:
 
-```text
-    1. Create Mysql DB with any 10 columns
-    2. Write CRUD API server in node.js to manipulate data in created at step 1 DB via API
-    3. Create 10 columns table in Google sheet, fill 3 rows with dummy data
-    4. Write Google App Script application to connect spreadsheet with db via API created in step 2
-    5. You should be able to add/update all data from table to DB
 
-```
+
+- [1. Create Mysql DB with any 10 columns](#p1)
+- [2. Write CRUD API server in node.js to manipulate data in created at step 1 DB via API](#p2)
+- [3. Create 10 columns table in Google sheet, fill 3 rows with dummy data](#p3)
+- [4. Write Google App Script application to connect spreadsheet with db via API created in step 2](#p4)
+- [5. You should be able to add/update all data from table to DB](#p5)
+
 
 Node.js application and mysql db server will be deployed on Red Hat Openshift cluster using [openshift sendbox](https://developers.redhat.com/developer-sandbox/get-started).
 
 Google sheet and Google Apps Script will be on google. It is obvious 
 
 ## 1. Create Mysql DB with any 10 columns
+
+<a name="p1"></a>
 
 To acomplish this step, we must:
 
@@ -367,7 +369,9 @@ Finally, the database **test4** created. Test data inserted. So, this step is fi
 
 
 
- ## 2. Write CRUD API server in node.js to manipulate data in created at step 1 DB via API
+## 2. Write CRUD API server in node.js to manipulate data in created at step 1 DB via API
+
+<a name="p2"></a>
 
  Node.js server developed as a simple Node.js express application. There are 2 routers:
 
@@ -408,7 +412,7 @@ In addition, parameters of the database could be stored in openshift secrets sor
 - clone repository from github usig 
 
 ```bash
- git clone <url.git> -b master
+ git clone https://github.com/pavlo-shcherbukha/google-sheet-to-db.git -b master
 
 ```
 
@@ -421,6 +425,17 @@ npm install
 
 - correct config files: ./config/local.json and  ./localdev-config.json.
 
+
+- run  **oc port-forward**  command in order to establish connection from your localhost to database in Openshift.
+
+```bash 
+# oc port-forward  <your pod>  <your local port> : <your remote port>
+oc login --token=%OC_TOKEN% --server=%OC_URL%
+oc project <your project>
+oc port-forward mysqldb-1-tqk59 3306:3306
+
+```
+
 - run application using
 
 ```bash
@@ -428,3 +443,158 @@ npm install
 
 ```
 
+
+
+### run server on openshift
+
+The application could be deployed in openshift using deployment script in file **openshift-deployment/2-crt_nodesrv-app.cmd** using openshift CLI directly from your github repository. The application could be deleted using script in file **openshift-deployment/2-del_nodesrv-app.cmd**. You can use the Red Hat Software Collections images as a foundation for applications that rely on specific runtime environments such as Node.js, Perl, or Python. Special versions of some of these runtime base images are referred to as Source-to-Image (S2I) images. With S2I images, you can insert your code into a base image environment that is ready to run that code.
+
+Before deployment you have to correct **openshift-deployment/2-crt_nodesrv-app.cmd**:
+
+- git repo url
+- branch name
+- environment variables
+- in case using private git repo, you have to create secret in order to access it like this:
+
+```bash
+
+echo ****************************************
+echo *    create secret for github
+echo * 
+echo ****************************************
+
+oc create secret generic sinc-gitlab-pvx-1 --from-literal=username=<your username> --from-literal=password=<your githyb dev token>
+
+oc secrets link deployer sinc-gitlab-pvx-1  
+oc secrets link builder sinc-gitlab-pvx-1
+
+oc annotate secret sinc-gitlab-pvx-1 "build.openshift.io/source-secret-match-uri-1=https://github.com/<your username>/*"
+
+
+```
+
+- correct route URL in file **openshift-deployment/2-crt_nodesrv-app.cmd**:
+
+Openshift router  is something like http balancer, if you run more then one instance of you application. The structure of  the external URL like this:
+http://<name of you application> - <project name> . <openshift DNS name>"
+
+- run **openshift-deployment/2-crt_nodesrv-app.cmd**
+
+As the result, you will get something  like  pic-10.
+
+<kbd><img src="doc/pic-10.png " /></kbd>
+<p style="text-align: center;">pic-10</p>
+
+
+- test  api using test cases in folder **./node-server/test/mysql-api**.
+
+ File  **test-emp-api.js**  for testing "/api/v1/emp".
+ File **test-emps-api.js** for testing   "/api/v1/emps".
+
+Before run test cases set up  correct base url:
+
+```js
+//let i_baseurl = 'http://localhost:8080';
+let i_baseurl = 'http://nodesrv-pashakx-dev.apps.sandbox-m2.ll9k.p1.openshiftapps.com';
+
+```
+
+```text
+
+  Тестовые кейсы на сервис /api/v1/emps
+Ответ:
+{"status":200,"error":null,"response":[{"IDREC":1,"CODEBRN":"10","NAMEBRN":"Head office","TABNUM":"10001","FAM":"Burleson","IM":"Janet","OTCH":"Jone","ADRESS":"Forest street","MSTATUS":"N","COUNTRY":"UA","DS":"2019-02-21T00:00:00.000Z","DF":null,"IDT":"2021-10-04T18:40:29.000Z","IUSRNM":"devadm@10.128.2.132","MDT":"2021-10-04T19:18:28.000Z","MUSRNM":"devadm@10.128.2.132"},{"IDREC":2,"CODEBRN":"10","NAMEBRN":"Head office","TABNUM":"10002","FAM":"BlackCat","IM":"Michael","OTCH":"Laurent","ADRESS":"Yellow Hill","MSTATUS":"M","COUNTRY":"GB","DS":"2019-05-21T00:00:00.000Z","DF":null,"IDT":"2021-10-04T18:41:25.000Z","IUSRNM":"devadm@10.128.2.132","MDT":"2021-10-04T19:18:28.000Z","MUSRNM":"devadm@10.128.2.132"},{"IDREC":3,"CODEBRN":"12","NAMEBRN":"Summer Branch","TABNUM":"10003","FAM":"Craft","IM":"Joann","OTCH":"Larries","ADRESS":"Kairo street","MSTATUS":"N","COUNTRY":"EG","DS":"2019-05-21T00:00:00.000Z","DF":null,"IDT":"2021-10-04T18:41:39.000Z","IUSRNM":"devadm@10.128.2.132","MDT":"2021-10-04T19:18:28.000Z","MUSRNM":"devadm@10.128.2.132"},{"IDREC":4,"CODEBRN":"11","NAMEBRN":"Winter Branch","TABNUM":"10004","FAM":"Ellison","IM":"Larry","OTCH":"Joseph","ADRESS":"New York City","MSTATUS":"M","COUNTRY":"US","DS":"2021-05-21T00:00:00.000Z","DF":null,"IDT":"2021-10-04T18:41:44.000Z","IUSRNM":"devadm@10.128.2.132","MDT":"2021-10-04T19:18:28.000Z","MUSRNM":"devadm@10.128.2.132"},{"IDREC":6,"CODEBRN":"12","NAMEBRN":"Spring Branch","TABNUM":"1006","FAM":"Green","IM":"Edvard","OTCH":"Jonson","ADRESS":"SanDiego","MSTATUS":"M","COUNTRY":"US","DS":"2018-02-01T00:00:00.000Z","DF":null,"IDT":"2021-10-04T19:16:49.000Z","IUSRNM":"devadm@10.128.2.132","MDT":"2021-10-04T19:18:28.000Z","MUSRNM":"devadm@10.128.2.132"},{"IDREC":7,"CODEBRN":"12","NAMEBRN":"Spring Branch","TABNUM":"1007","FAM":"EverGreen","IM":"Bob","OTCH":"Edvard","ADRESS":"SanDiego","MSTATUS":"M","COUNTRY":"US","DS":"2018-03-01T00:00:00.000Z","DF":null,"IDT":"2021-10-04T19:18:28.000Z","IUSRNM":"devadm@10.128.2.132","MDT":null,"MUSRNM":null},{"IDREC":8,"CODEBRN":"03","NAMEBRN":"Чернигов","TABNUM":"000","FAM":"updatedfam","IM":"Петро","OTCH":"Петролвич","ADRESS":"На галявині","MSTATUS":"N","COUNTRY":"UA","DS":"2020-03-19T00:00:00.000Z","DF":null,"IDT":"2021-10-05T06:03:10.000Z","IUSRNM":"devadm@10.128.3.116","MDT":"2021-10-05T06:03:10.000Z","MUSRNM":"devadm@10.128.3.116"}]}
+    ✔ GET /api/v1/emps/ - Ожидаем ответ 200. Прочитать все записи из таблицы (395ms)
+Ответ:
+{"status":200,"error":null,"response":{"fieldCount":0,"affectedRows":7,"insertId":0,"info":"","serverStatus":34,"warningStatus":0}}
+    ✔ DELTE /api/v1/emps - Ожидаем ответ 200. Удалить все записи из таблицы (344ms)
+Ответ:
+{"status":200,"error":null,"response":[]}
+    ✔ GET /api/v1/emps/ - Ожидаем ответ 200. Прочитать все записи из таблицы после удаления. Ождаем  0 записей === пустой массив (386ms)
+
+
+  3 passing (1s)
+
+```
+
+```text
+  Тестовые кейсы на сервис /api/v1/emp
+Запрос: {"CODEBRN":"03","NAMEBRN":"Чернигов","TABNUM":"000","FAM":"Петренко","IM":"Петро","OTCH":"Петролвич","ADRESS":"На галявині","MSTATUS":"N","COUNTRY":"UA","DS":"2020-03-19"}
+Ответ:
+{"status":200,"error":null,"response":{"fieldCount":0,"affectedRows":1,"insertId":10,"info":"","serverStatus":2,"warningStatus":0}}
+    ✔ POST /api/v1/emp - Ожидаем ответ 200. Запись создана в БД (507ms)
+Запрос: :id=000
+Ответ:
+{"status":200,"error":null,"response":[{"IDREC":10,"CODEBRN":"03","NAMEBRN":"Чернигов","TABNUM":"000","FAM":"Петренко","IM":"Петро","OTCH":"Петролвич","ADRESS":"На галявині","MSTATUS":"N","COUNTRY":"UA","DS":"2020-03-19T00:00:00.000Z","DF":null,"IDT":"2021-10-05T06:05:42.000Z","IUSRNM":"devadm@10.128.3.116","MDT":null,"MUSRNM":null}]}
+    ✔ GET /api/v1/emp/:id - Ожидаем ответ 200. Прочитать запись с tabnum=:id из БД (345ms)     
+Запрос: :id=000
+Запрос: upd body={"CODEBRN":"03","NAMEBRN":"Чернигов","FAM":"updatedfam","IM":"Петро","OTCH":"Петролвич","ADRESS":"На галявині","MSTATUS":"N","COUNTRY":"UA","DS":"2020-03-19"}
+Ответ:
+{"status":200,"error":null,"response":{"fieldCount":0,"affectedRows":1,"insertId":0,"info":"Rows matched: 1  Changed: 1  Warnings: 0","serverStatus":34,"warningStatus":0,"changedRows":1}}   
+    ✔ POST /api/v1/emp/:id - Ожидаем ответ 200. Обновить запись с TABNUM=:id в БД (376ms)      
+Запрос: :id=000
+Ответ:
+{"status":200,"error":null,"response":[{"IDREC":10,"CODEBRN":"03","NAMEBRN":"Чернигов","TABNUM":"000","FAM":"updatedfam","IM":"Петро","OTCH":"Петролвич","ADRESS":"На галявині","MSTATUS":"N","COUNTRY":"UA","DS":"2020-03-19T00:00:00.000Z","DF":null,"IDT":"2021-10-05T06:05:42.000Z","IUSRNM":"devadm@10.128.3.116","MDT":"2021-10-05T06:05:42.000Z","MUSRNM":"devadm@10.128.3.116"}]}   
+    ✔ GET /api/v1/emp/:id - Ожидаем ответ 200. Прочитать запись с TABNUM=:id после обновления в БД. Значение  поля FAM  должно совпадать с полем  в обнолвении (339ms)
+Запрос: :id=000
+Ответ:
+{"status":200,"error":null,"response":{"fieldCount":0,"affectedRows":1,"insertId":0,"info":"","serverStatus":34,"warningStatus":0}}
+    ✔ DELETE /api/v1/emp/:id - Ожидаем ответ 200. Удалить запись с TABNUM=:id из БД (345ms)    
+
+
+  5 passing (2s)
+```
+
+Base on this write CRUD API server in node.js to manipulate data in created at step 1 DB via API has done.
+
+## 3. Create 10 columns table in Google sheet, fill 3 rows with dummy data
+
+<a name="p3"></a>
+
+  I have created spreadsheet with name "shexample" and  sheet "Emp" with structure which is similar to table APP2$EMP pic-11.
+
+
+  <kbd><img src="doc/pic-11.png " /></kbd>
+<p style="text-align: center;">pic-11</p>
+
+This step has done.
+
+
+## 4. Write Google App Script application to connect spreadsheet with db via API created in step 2
+
+<a name="p4"></a>
+
+Through menu on pic-12 you can create your Apps Script project and create all functions which you need.
+
+   <kbd><img src="doc/pic-12.png " /></kbd>
+   <p style="text-align: center;">pic-12</p>
+
+
+For  UI implementation  custom meny added to the main manu in spreadsheet pic-13.
+
+    <kbd><img src="doc/pic-13.png " /></kbd>
+   <p style="text-align: center;">pic-13</p>
+
+
+   Connection to spreadsheet implemented in this part of code pic-14
+
+     <kbd><img src="doc/pic-14.png " /></kbd>
+   <p style="text-align: center;">pic-14</p>
+
+
+##  5. You should be able to add/update all data from table to DB
+<a name="p5"></a>
+
+The full code for apps script in file *./appscript/addToDB.gs*. The main function is **function mergetoDB()**
+
+Before run this script you jave to setup you spreadsheet ID and sheet name
+
+```js
+        Logger.log('Open Spreadsheet');
+        var ss = SpreadsheetApp.openById("*************************************");
+        SpreadsheetApp.setActiveSpreadsheet(ss);
+        Logger.log('Select sheet');
+        var sheet = ss.getSheetByName("*****");
+        SpreadsheetApp.setActiveSheet(sheet);
+
+```
