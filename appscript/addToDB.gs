@@ -1,6 +1,9 @@
 ﻿/**
- * @OnlyCurrentDoc Limits the script to only accessing the current sheet.
+ *     Write Google App Script application to connect spreadsheet with db via API created in step 2
+ *     You should be able to add/update all data from table to DB
+ *
  */
+
 
 /**
  * A special function that runs when the spreadsheet is open, used to add a
@@ -19,7 +22,7 @@ function onOpen() {
 
 
 /**
- * Отправить  таблицу в БД UI
+ * Save sheet into Database UI
  */
 function saveToDB_UI(){
   var selBtn=Browser.msgBox('Confirmation!',
@@ -35,7 +38,7 @@ function saveToDB_UI(){
       var l_res=mergetoDB();
       if (l_res.ok===true){
             Browser.msgBox('Information',
-                  'The process  succeed',
+                  'The process  succeed!. Details: [Inserted=' + l_res.inserted + ' Updated=' + l_res.updated + ' Deleted: '+ l_res.deleted + ']',
                   Browser.Buttons.OK);
       } else {
 
@@ -66,10 +69,13 @@ function mergetoDB(){
   var l_pth_update = '/api/v1/emp';
   var l_pth_delete = '/api/v1/emp';
   var l_pth_getall = '/api/v1/emps';
+  var l_cnt_upd = 0;
+  var l_cnt_ins = 0;
+  var l_cnt_del = 0;
 
   try{
         Logger.log('Open Spreadsheet');
-        var ss = SpreadsheetApp.openById("1Qc-K.....................");
+        var ss = SpreadsheetApp.openById("1Qc-Kr0IS5fz5cA33OR12I8l7VY9oXUBEOYvQyCxneL4");
         SpreadsheetApp.setActiveSpreadsheet(ss);
         Logger.log('Select sheet');
         var sheet = ss.getSheetByName("Emp");
@@ -108,6 +114,7 @@ function mergetoDB(){
                 var response = UrlFetchApp.fetch( l_delete_url , options);
                 Logger.log('delete data  from DB. TABNUM=' + l_dbdata[i].TABNUM + ' StatusCode=' + response.getResponseCode());
                 Logger.log('delete data  from DB. TABNUM=' + l_dbdata[i].TABNUM + ' Response=' + response.getContentText());
+                l_cnt_del ++;
 
             }
             
@@ -146,28 +153,33 @@ function mergetoDB(){
                     if (!ires.ok){
                       throw new Error( ires.errtet );
                     }
+                    l_cnt_ins ++;
+
 
                 } else if(operation === 'UPDATE'){
                     Logger.log('Row updating: rownum=' + i);
                     var ures=updateRow(row, l_url , l_pth_update )
                     Logger.log('Row updating: rownum=' + i + ' ' + ' '+JSON.stringify(ures) );
+                    if (! ures.ok){
+                      throw new Error( ures.errtet );
+                    }
+                    l_cnt_upd ++;
+
 
 
                 } else {
                     throw new Error( 'Unsupported CRUD operation! ['+operation+']' );
                 }
 
-                if (i===lastrowidx){
-
-                  Logger.log('Rows saving: finish');
-                  Logger.log('Prepare result');
-                  var lres= {  ok: l_result};
-                  return lres ;
-
-                }
+                //if (i===lastrowidx){
+                //}
 
             } 
         });  //forEach
+        Logger.log('Rows saving: finish');
+        Logger.log('Prepare result');
+        var lres= {  ok: l_result, updated: l_cnt_upd, inserted: l_cnt_ins, deleted: l_cnt_del };
+        return lres ;
       
 
   } catch (err) {
