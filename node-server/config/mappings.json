@@ -1,0 +1,31 @@
+{
+    "version": 1,
+    "IDB_HOST": {
+        "searchPatterns": [
+            "env:IDB_HOST",
+            "file:/localdev-config.json:$.IDB_HOST"
+        ]
+    },
+    "IDB_DB": {
+        "searchPatterns": [
+            "env:IDB_DB",
+            "file:/localdev-config.json:$.IDB_DB"
+        ]
+    },
+    "IDB_USR": {
+        "searchPatterns": [
+            "env:IDB_USR",
+            "file:/localdev-config.json:$.IDB_USR"
+        ]
+    },
+    "IDB_PSW": {
+        "searchPatterns": [
+            "env:IDB_PSW",
+            "file:/localdev-config.json:$.IDB_PSW"
+        ]
+    }
+
+
+
+
+}
