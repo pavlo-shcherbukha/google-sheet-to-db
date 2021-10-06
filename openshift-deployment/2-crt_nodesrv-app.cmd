@@ -13,7 +13,10 @@ echo *    create  application
 echo * 
 echo ****************************************
 
-oc new-app https://github.com/pavlo-shcherbukha/google-sheet-to-db.git#master --context-dir=/testapp1  --name="nodesrv" -e IDB_HOST=mysql -e IDB_DB=test4 -e IDB_USR=devadm -e IDB_PSW="**" --strategy=source --source-secret=sinc-gitlab-pvx-1 
+oc new-app https://github.com/pavlo-shcherbukha/google-sheet-to-db.git#main --context-dir=/node-server  --name="nodesrv" -e IDB_HOST=mysql -e IDB_DB=test4 -e IDB_USR=devadm -e IDB_PSW="**" --strategy=source
+
+rem for private repo
+rem oc new-app https://github.com/pavlo-shcherbukha/google-sheet-to-db.git#main --context-dir=/node-server  --name="nodesrv" -e IDB_HOST=mysql -e IDB_DB=test4 -e IDB_USR=devadm -e IDB_PSW="**" --strategy=source --source-secret=sinc-gitlab-pvx-1 
 
 pause
 
