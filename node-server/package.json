@@ -3,7 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www"
+    "start": "node ./bin/www",
+    "ltest-emp": "node ./test/mysql-api/test-emp-load.js",
+    "ltest-emps": "node ./test/mysql-api/test-emps-load.js"
   },
   "dependencies": {
     "chai": "^4.3.4",
@@ -13,6 +15,7 @@
     "googleapis": "^39.2.0",
     "http-errors": "~1.6.3",
     "ibm-cloud-env": "^0.2.7",
+    "loadtest": "^5.1.2",
     "mocha": "^9.1.2",
     "morgan": "~1.9.1",
     "mysql2": "^2.3.0",
