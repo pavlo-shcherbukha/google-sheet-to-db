@@ -598,3 +598,41 @@ Before run this script you jave to setup you spreadsheet ID and sheet name
         SpreadsheetApp.setActiveSheet(sheet);
 
 ```
+
+
+##  6. How to provide api load test
+<a name="p6"></a>
+
+For load test you  may use the npm package  [loadtest](https://www.npmjs.com/package/loadtest). For demo purposes I have written two tests:
+
+- test-emp-load.js 
+
+This module demonstrates how to write load-test with http post request and with generated body. You can run it by using command:
+
+```bash
+
+  npm run ltest-emp
+
+```
+
+
+- test-emps-load.js 
+
+This module demonstrates how to write load-test with http get request. You can run it by using command:
+
+```bash
+
+  npm run ltest-emps
+
+```
+
+If you run load tests, do not forget about pod scaling feature of kubernetes/Openshift. Try playing with it.
+
+In addition, try to play with option parameters:
+    maxRequests: 100
+    requestsPerSecond: 8
+    concurrency: 4
+    maxSeconds: 40
+
+    
+
