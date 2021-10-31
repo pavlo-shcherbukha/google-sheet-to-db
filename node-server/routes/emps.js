@@ -13,6 +13,9 @@ router.options('/', function(req, res, next) {
 /* GET users listing. */
 router.get('/', function(req, res, next) {
   //res.send('respond with a resource');
+    res.header("Access-Control-Allow-Origin", "*"); 
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, x-powered-by, date");
+    res.header('Access-Control-Allow-Methods', 'DELETE,GET,PATCH,POST,PUT'); 
     res.locals.connection.query('SELECT * FROM APP2$EMP', function (error, results, fields) {
       if (error) {
         res.contentType('application/json');
