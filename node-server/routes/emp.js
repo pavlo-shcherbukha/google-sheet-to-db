@@ -9,6 +9,13 @@ router.options('/:id', function(req, res, next) {
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, x-powered-by, date");
   res.header('Access-Control-Allow-Methods', 'DELETE,GET,PATCH,POST,PUT'); 
 });
+
+router.options('/', function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*"); 
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, x-powered-by, date");
+  res.header('Access-Control-Allow-Methods', 'DELETE,GET,PATCH,POST,PUT'); 
+});
+
 /**
  * Get one recored by idrec (PK)
  */
@@ -29,6 +36,8 @@ router.get('/:id', function(req, res, next) {
     });  
 
 });
+
+
 
 /**
  * Insert record
